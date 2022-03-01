@@ -4309,3 +4309,35 @@ spec:
       app: notification-controller
   policyTypes:
   - Ingress
+  --
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: ww-gitops
+  namespace: flux-system
+spec:
+  interval: 1m0s
+  ref:
+    branch: v2
+  secretRef:
+    name: flux-system
+  url: ssh://git@github.com/weaveworks/weave-gitops
+  ignore: |
+    # exclude all
+    /*
+    # include charts directory
+    !/charts/
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: ww-gitops
+  namespace: flux-system
+spec:
+  chart:
+    spec:
+      chart: ./charts/weave-gitops
+      sourceRef:
+        kind: GitRepository
+        name: ww-gitops
+  interval: 1m0s
